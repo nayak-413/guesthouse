@@ -1,226 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>ALPLA Guest House</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="shortcut icon" href="{{ url_for('static', filename='images/alpla.ico') }}" type="image/x-icon" />
+    <title>Guesthouse Dashboard</title>
 </head>
 <body>
-  <div class="top">
-    <header>
-      <h1>
-        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="logo" />
-        Guest House Management
-      </h1>
-    </header>
+    <h1>🏨 Guesthouse Dashboard</h1>
+    <p><strong>Total Beds:</strong> {{ total_beds }}</p>
+    <p><strong>Occupied:</strong> {{ occupied }}</p>
+    <p><strong>Available:</strong> {{ available }}</p>
 
-    <nav>
-      <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
-      <button class="tab-btn" onclick="showTab('guests')">Guest Management</button>
-      <button class="tab-btn" onclick="showTab('maintenance')">Maintenance</button>
-      <button class="tab-btn" onclick="showTab('announcements')">Announcements</button>
-      <button><a class="tab-btn" href="{{ url_for('expense') }}" target="_blank">Expense</a></button>
-    </nav>
-  </div>
-
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="active">
-    <h2>Booking Overview</h2>
-    <div class="bed-stats">
-      <div class="stat-card total"><h4>Total Beds</h4><p>{{ total_beds }}</p></div>
-      <div class="stat-card occupied"><h4>Occupied</h4><p>{{ occupied }}</p></div>
-      <div class="stat-card available"><h4>Available</h4><p>{{ available }}</p></div>
-    </div>
-
-    <h3>Current Guests in Beds</h3>
-    {% if current_guests %}
-    <table border="1" cellpadding="6" cellspacing="0" style="width: 100%; border-collapse: collapse">
-      <thead>
-        <tr>
-          <th>Guest ID</th>
-          <th>Name</th>
-          <th>Beds Booked</th>
-          <th>Room Number</th>
-          <th>Bed Number</th>
-          <th>Check-IN Date<br>Time</th>
-          <th>Plant</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for guest in current_guests %}
-        <tr>
-          <td>{{ guest[0] }}</td>
-          <td>{{ guest[1] }}</td>
-          <td>{{ bed_counts.get(guest[0], 1) }}</td>
-          <td>{{ guest[2] }}</td>
-          <td>{{ guest[3] }}</td>
-          <td>Date: {{ guest[4] }}<br>Time: {{ guest[5] }}</td>
-          <td>{{ guest[6] }}</td>
-          <td>
-            <form action="/remove_guest/{{ guest[0] }}" method="post" style="display: inline">
-              <button type="submit" onclick="return confirm('Are you sure you want to remove Guest ID {{ guest[0] }}?');">Remove</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p>No guests currently checked in.</p>
-    {% endif %}
-
-    {% if available > 0 %}
-    <button type="submit">
-      <a href="{{ url_for('register_guest') }}" target="_blank">Register New Guest</a>
-    </button>
-    {% else %}
-    <div style="padding: 12px; color: red; font-weight: bold; border: 1px solid red; width: fit-content;">
-      All beds are currently occupied. New registrations are temporarily disabled.
-    </div>
-    {% endif %}
-  </section>
-
-  <!-- GUEST LOGS -->
-  <section id="guests">
-    <h2>Guest Management</h2>
-
-    <div class="log-actions">
-      <form action="/clear_logs" method="POST" onsubmit="return confirm('Are you sure you want to delete past logs?')">
-        <button type="submit" class="clear-logs-btn">🧹 Clear Past Logs</button>
-      </form>
-      <form action="/export_logs" method="GET">
-        <button type="submit" class="export-logs-btn">📁 Export Logs</button>
-      </form>
-    </div>
-
-    {% set seen_guests = [] %}
-    <table class="log-table">
-      <thead>
-        <tr>
-          <th>Guest-ID</th>
-          <th>Guest Name</th>
-          <th>Room</th>
-          <th>Bed No.</th>
-          <th>Check-In</th>
-          <th>Check-Out</th>
-          <th>Reason</th>
-          <th>Plant</th>
-          <th>Meals</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for log in logs %}
-        <tr data-guest="{{ log[0] }}">
-          <td>{{ log[0] }}</td>
-          <td>{{ log[1] }}</td>
-          <td>{{ log[2] }}</td>
-          <td>{{ log[3] }}</td>
-          <td>Date: {{ log[4] }}<br>Time: {{ log[5] }}</td>
-          <td>Date: {{ log[6] or '-' }}<br>Time: {{ log[7] or '-' }}</td>
-          <td>{{ log[8] }}</td>
-          <td>{{ log[9] }}</td>
-          <td class="{% if log[0] in seen_guests %}hidden-cell{% else %}meals-cell{% endif %}">
-            {% if log[0] not in seen_guests %}
-              {% set _ = seen_guests.append(log[0]) %}
-              {% if log[10] %}
-                {% set selected_meals = log[10].split(", ") %}
-                {% set ns = namespace(total=0) %}
-                <ul class="meal-list">
-                {% for meal in selected_meals %}
-                  {% set clean_meal = meal.strip() if meal else '' %}
-                  {% set price = meal_prices.get(clean_meal, 0) %}
-                  {% set ns.total = ns.total + price %}
-                  <li>{{ clean_meal }} - ₹{{ price }}</li>
-                {% endfor %}
-                </ul>
-                <div class="meal-total">Total: ₹{{ ns.total }}</div>
-                <div class="meal-status">Status: <strong>{{ log[11] or 'Pending' }}</strong></div>
-                {% if log[11] != 'Completed' %}
-                <form method="POST" action="/mark_meal_complete/{{ log[0] }}">
-                  <button type="submit" class="mark-complete-btn">Mark as Completed</button>
-                </form>
-                {% endif %}
-              {% else %}
-                <div class="meal-none">No meals ordered</div>
-              {% endif %}
-            {% endif %}
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="9" class="no-logs">No logs found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
-
-  <!-- MAINTENANCE -->
-  <section id="maintenance">
-    <h2>Messages from Guests</h2>
-    <ul class="message-list">
-      {% for guest_id, msg_id, name, message, room, bed, time in messages %}
-      <li>
-        <form action="/delete_message/{{ msg_id }}" method="POST" class="delete-form" onsubmit="return confirm('Delete this message?');">
-          <button type="submit">✖</button>
-        </form>
-        <strong>Guest ID {{ guest_id }}</strong> – {{ name }}<br />
-        <em>Room {{ room }}, Bed {{ bed }} | {{ time }}</em>
-        <p>{{ message }}</p>
-      </li>
-      {% else %}
-      <li><p>No messages yet.</p></li>
-      {% endfor %}
+    <h2>🧍 Current Guests:</h2>
+    <ul>
+    {% for guest in current_guests %}
+        <li>{{ guest[1] }} - Room {{ guest[2] }}, Bed {{ guest[3] }}</li>
+    {% endfor %}
     </ul>
-  </section>
 
-  <!-- ANNOUNCEMENTS -->
-  <section id="announcements">
-    <h2>Announcements</h2>
-    <form method="POST" action="/add_announcement" id="announcement-form">
-      <input type="text" name="title" placeholder="Title" required /><br><br>
-      <textarea name="message" rows="4" placeholder="Message" required></textarea><br>
-      <button type="submit">Post Announcement</button>
-    </form>
-
-    <ul class="announcement-list">
-      {% for id, title, message, posted_on in announcements %}
-      <li>
-        <strong>{{ title }}</strong><br />
-        <div>{{ message|safe }}</div><br>{{ posted_on }}<br />
-        <form action="/delete_announcement/{{ id }}" method="POST" onsubmit="return confirm('Delete this announcement?');">
-          <button type="submit" style="background-color: red">Delete</button>
-        </form>
-        <form action="/edit_announcement/{{ id }}" method="GET">
-          <button type="submit">Edit</button>
-        </form>
-      </li>
-      {% else %}
-      <li>No announcements yet.</li>
-      {% endfor %}
+    <h2>📢 Announcements:</h2>
+    <ul>
+    {% for ann in announcements %}
+        <li><strong>{{ ann[1] }}</strong>: {{ ann[2] }} ({{ ann[3] }})</li>
+    {% endfor %}
     </ul>
-  </section>
 
-  <script>
-    function showTab(tabId) {
-      const sections = document.querySelectorAll("section");
-      sections.forEach(s => s.classList.remove("active"));
-      const buttons = document.querySelectorAll(".tab-btn");
-      buttons.forEach(b => b.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-      document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add("active");
-      history.pushState({ tab: tabId }, "", `#${tabId}`);
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const tabFromUrl = location.hash.substring(1) || "dashboard";
-      showTab(tabFromUrl);
-    });
-
-    window.addEventListener("popstate", (e) => {
-      const tab = e.state?.tab || "dashboard";
-      showTab(tab);
-    });
-  </script>
+    <h2>💬 Messages:</h2>
+    <ul>
+    {% for msg in messages %}
+        <li>{{ msg[2] }}: {{ msg[3] }}</li>
+    {% endfor %}
+    </ul>
 </body>
 </html>
