@@ -42,3 +42,8 @@ def test_db():
 @app.errorhandler(500)
 def error_500(e):
     return f"500 - Internal Server Error: {str(e)}", 500
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))  # PORT is provided by Render
+    app.run(host='0.0.0.0', port=port)
