@@ -119,6 +119,10 @@ def db_test():
         print("❌ ERROR:", e)
         return f"❌ Database connection failed: {e}"
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 
 @app.route("/")
 # def index():
@@ -930,5 +934,6 @@ def expense():
 import os
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
+    app.run()
+    # app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
     
