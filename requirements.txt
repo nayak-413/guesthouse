@@ -10,3 +10,4 @@ qrcode==8.1
 apscheduler==3.10.4
 flask_mysqldb
 openpyxl
+gunicorn
