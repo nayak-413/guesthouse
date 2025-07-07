@@ -106,123 +106,123 @@ def connect_db():
 
 
 @app.route("/")
-def index():
-    return "✅ Flask app is running!"
 # def index():
-#     con = connect_db()
-#     cur = con.cursor()
+#     return "✅ Flask app is running!"
+def index():
+    con = connect_db()
+    cur = con.cursor()
 
-#     total_beds = 6 * 2  # 6 rooms, 2 beds each = 12 beds total
+    total_beds = 6 * 2  # 6 rooms, 2 beds each = 12 beds total
 
-#     # Count how many beds are occupied
-#     cur.execute("SELECT COUNT(*) FROM beds WHERE occupied=TRUE")
-#     occupied = cur.fetchone()[0]
-#     available = total_beds - occupied
-#     # occupied = cur.fetchone()[0]
-#     # available = total_beds - occupied
+    # Count how many beds are occupied
+    cur.execute("SELECT COUNT(*) FROM beds WHERE occupied=TRUE")
+    occupied = cur.fetchone()[0]
+    available = total_beds - occupied
+    # occupied = cur.fetchone()[0]
+    # available = total_beds - occupied
 
-#     # Get all booking logs (past + current bookings)
-#     cur.execute(
-#         """
-#         SELECT g.id, g.name, b.room_number, b.bed_number, 
-#                bk.checkin_date, bk.checkin_time, 
-#                bk.checkout_date, bk.checkout_time, 
-#                g.reason, g.category, g.meals, g.meal_status
-#         FROM bookings bk
-#         JOIN guests g ON bk.guest_id = g.id
-#         JOIN beds b ON bk.bed_id = b.id
-#         ORDER BY bk.checkin_date DESC, bk.checkin_time DESC
-#         """
-#     )
-#     logs = cur.fetchall()
+    # Get all booking logs (past + current bookings)
+    cur.execute(
+        """
+        SELECT g.id, g.name, b.room_number, b.bed_number, 
+               bk.checkin_date, bk.checkin_time, 
+               bk.checkout_date, bk.checkout_time, 
+               g.reason, g.category, g.meals, g.meal_status
+        FROM bookings bk
+        JOIN guests g ON bk.guest_id = g.id
+        JOIN beds b ON bk.bed_id = b.id
+        ORDER BY bk.checkin_date DESC, bk.checkin_time DESC
+        """
+    )
+    logs = cur.fetchall()
 
-#     # Fetch only the latest check-in per currently occupied guest
-#     cur.execute(
-#         """
-#         SELECT g.id, g.name, b.room_number, b.bed_number, bk.checkin_date, bk.checkin_time, g.category
-#         FROM bookings bk
-#         JOIN guests g ON bk.guest_id = g.id
-#         JOIN beds b ON bk.bed_id = b.id
-#         WHERE b.occupied = TRUE
-#         AND bk.checkout_date IS NULL  -- Ensures we only include guests who have not checked out
-#         AND bk.booking_id = (
-#             SELECT MAX(bk2.booking_id)
-#             FROM bookings bk2
-#             WHERE bk2.guest_id = bk.guest_id
-#         )
-#         ORDER BY bk.checkin_date ASC, bk.checkin_time ASC;
-#         """
-#     )
-#     current_guests = cur.fetchall()  # Only the latest booking per occupied guest
+    # Fetch only the latest check-in per currently occupied guest
+    cur.execute(
+        """
+        SELECT g.id, g.name, b.room_number, b.bed_number, bk.checkin_date, bk.checkin_time, g.category
+        FROM bookings bk
+        JOIN guests g ON bk.guest_id = g.id
+        JOIN beds b ON bk.bed_id = b.id
+        WHERE b.occupied = TRUE
+        AND bk.checkout_date IS NULL  -- Ensures we only include guests who have not checked out
+        AND bk.booking_id = (
+            SELECT MAX(bk2.booking_id)
+            FROM bookings bk2
+            WHERE bk2.guest_id = bk.guest_id
+        )
+        ORDER BY bk.checkin_date ASC, bk.checkin_time ASC;
+        """
+    )
+    current_guests = cur.fetchall()  # Only the latest booking per occupied guest
 
-#     # Count how many beds each guest booked
-#     cur.execute(
-#         """
-#         SELECT g.id, COUNT(*) as bed_count
-#         FROM bookings bk
-#         JOIN guests g ON bk.guest_id = g.id
-#         WHERE bk.checkout_date IS NULL
-#         GROUP BY g.id
-#     """
-#     )
-#     bed_counts_per_guest = dict(cur.fetchall())
+    # Count how many beds each guest booked
+    cur.execute(
+        """
+        SELECT g.id, COUNT(*) as bed_count
+        FROM bookings bk
+        JOIN guests g ON bk.guest_id = g.id
+        WHERE bk.checkout_date IS NULL
+        GROUP BY g.id
+    """
+    )
+    bed_counts_per_guest = dict(cur.fetchall())
 
-#     # cur.execute(
-#     #     """
-#     # SELECT g.id AS guest_id, m.name, m.message, m.room_number, m.bed_number, m.timestamp
-#     # FROM guest_messages m
-#     # JOIN guests g ON g.name = m.name
-#     # JOIN bookings bk ON g.id = bk.guest_id
-#     # JOIN beds b ON bk.bed_id = b.id
-#     # WHERE b.room_number = m.room_number
-#     #   AND b.bed_number = m.bed_number
-#     #   AND bk.checkout_date IS NULL
-#     # ORDER BY m.timestamp DESC
-#     # """
-#     # )
-#     # messages = cur.fetchall()
+    # cur.execute(
+    #     """
+    # SELECT g.id AS guest_id, m.name, m.message, m.room_number, m.bed_number, m.timestamp
+    # FROM guest_messages m
+    # JOIN guests g ON g.name = m.name
+    # JOIN bookings bk ON g.id = bk.guest_id
+    # JOIN beds b ON bk.bed_id = b.id
+    # WHERE b.room_number = m.room_number
+    #   AND b.bed_number = m.bed_number
+    #   AND bk.checkout_date IS NULL
+    # ORDER BY m.timestamp DESC
+    # """
+    # )
+    # messages = cur.fetchall()
 
-#     cur.execute(
-#         """
-#     SELECT g.id AS guest_id, m.id AS message_id, m.name, m.message, m.room_number, m.bed_number, m.timestamp
-#     FROM guest_messages m
-#     JOIN guests g ON g.name = m.name
-#     JOIN bookings bk ON g.id = bk.guest_id
-#     JOIN beds b ON bk.bed_id = b.id
-#     WHERE b.room_number = m.room_number
-#       AND b.bed_number = m.bed_number
-#       AND bk.checkout_date IS NULL
-#     ORDER BY m.timestamp DESC
-#     """
-#     )
+    cur.execute(
+        """
+    SELECT g.id AS guest_id, m.id AS message_id, m.name, m.message, m.room_number, m.bed_number, m.timestamp
+    FROM guest_messages m
+    JOIN guests g ON g.name = m.name
+    JOIN bookings bk ON g.id = bk.guest_id
+    JOIN beds b ON bk.bed_id = b.id
+    WHERE b.room_number = m.room_number
+      AND b.bed_number = m.bed_number
+      AND bk.checkout_date IS NULL
+    ORDER BY m.timestamp DESC
+    """
+    )
 
-#     messages = cur.fetchall()
+    messages = cur.fetchall()
 
-#     cur.execute(
-#         "SELECT id, title, message, posted_on FROM announcements ORDER BY posted_on DESC"
-#     )
-#     announcements = cur.fetchall()
+    cur.execute(
+        "SELECT id, title, message, posted_on FROM announcements ORDER BY posted_on DESC"
+    )
+    announcements = cur.fetchall()
 
-#     # # Fetch unique meal orders (one per guest)
-#     #     cur.execute("SELECT id, name, meals FROM guests WHERE meals IS NOT NULL AND meals != ''")
-#     #     meal_orders = cur.fetchall()
+    # # Fetch unique meal orders (one per guest)
+    #     cur.execute("SELECT id, name, meals FROM guests WHERE meals IS NOT NULL AND meals != ''")
+    #     meal_orders = cur.fetchall()
 
-#     con.close()
+    con.close()
 
-#     return render_template(
-#         "index.html",
-#         logs=logs,
-#         current_guests=current_guests,
-#         total_beds=total_beds,
-#         occupied=occupied,
-#         available=available,
-#         # occupied=len(current_guests),
-#         # available=total_beds - len(current_guests),
-#         bed_counts=bed_counts_per_guest,
-#         messages=messages,
-#         announcements=announcements,
-#         meal_prices=meal_prices,
-#     )
+    return render_template(
+        "index.html",
+        logs=logs,
+        current_guests=current_guests,
+        total_beds=total_beds,
+        occupied=occupied,
+        available=available,
+        # occupied=len(current_guests),
+        # available=total_beds - len(current_guests),
+        bed_counts=bed_counts_per_guest,
+        messages=messages,
+        announcements=announcements,
+        meal_prices=meal_prices,
+    )
 
 
 @app.route("/register", methods=["GET", "POST"])
