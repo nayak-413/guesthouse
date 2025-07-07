@@ -114,6 +114,7 @@ def db_test():
         con.close()
         return "✅ Database connection successful!"
     except Exception as e:
+        print("❌ ERROR:", e)
         return f"❌ Database connection failed: {e}"
 
 
