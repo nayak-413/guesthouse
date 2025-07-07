@@ -94,7 +94,6 @@ meal_prices = {"Breakfast": 50, "Lunch": 100, "Dinner": 80}
 
 def connect_db():
     con = pymysql.connect(
-        con = pymysql.connect(
         host=os.environ.get("MYSQL_HOST"),
         user=os.environ.get("MYSQL_USER"),
         password=os.environ.get("MYSQL_PASSWORD"),
