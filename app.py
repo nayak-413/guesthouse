@@ -106,6 +106,18 @@ def connect_db():
     return con
 
 
+@app.route("/db-test")
+def db_test():
+    try:
+        con = connect_db()
+        cur = con.cursor()
+        cur.execute("SELECT 1")
+        con.close()
+        return "✅ Database connection successful!"
+    except Exception as e:
+        return f"❌ Database connection failed: {e}"
+
+
 @app.route("/")
 # def index():
 #     return "✅ Flask app is running!"
