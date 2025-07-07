@@ -94,10 +94,11 @@ meal_prices = {"Breakfast": 50, "Lunch": 100, "Dinner": 80}
 
 def connect_db():
     con = pymysql.connect(
-        host="localhost",
-        user="root",
-        password="nayak413",
-        database="guesthouse",
+        con = pymysql.connect(
+        host=os.environ.get("MYSQL_HOST"),
+        user=os.environ.get("MYSQL_USER"),
+        password=os.environ.get("MYSQL_PASSWORD"),
+        database=os.environ.get("MYSQL_DB"),
         cursorclass=pymysql.cursors.Cursor,
     )
     cur = con.cursor()
