@@ -8,11 +8,11 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 # Try MySQL connection (optional — only if environment variables are set)
 try:
     conn = pymysql.connect(
-        host=os.environ.get("MYSQL_HOST"),
-        user=os.environ.get("MYSQL_USER"),
-        password=os.environ.get("MYSQL_PASSWORD"),
-        database=os.environ.get("MYSQL_DB"),
-        port=int(os.environ.get("MYSQL_PORT", 3306)),
+        host=os.environ.get("MYSQL_ADDON_HOST"),
+        user=os.environ.get("MYSQL_ADDON_USER"),
+        password=os.environ.get("MYSQL_ADDON_PASSWORD"),
+        database=os.environ.get("MYSQL_ADDON_DB"),
+        port=int(os.environ.get("MYSQL_ADDON_PORT", 3306)),
     )
 except Exception as e:
     conn = None
