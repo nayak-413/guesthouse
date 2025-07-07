@@ -99,6 +99,7 @@ def connect_db():
         user=os.environ.get("MYSQL_USER"),
         password=os.environ.get("MYSQL_PASSWORD"),
         database=os.environ.get("MYSQL_DB"),
+        port=int(os.environ.get("MYSQL_PORT", 3306)),
         cursorclass=pymysql.cursors.Cursor,
     )
     cur = con.cursor()
@@ -110,8 +111,6 @@ def connect_db():
 def db_test():
     try:
         con = connect_db()
-        cur = con.cursor()
-        cur.execute("SELECT 1")
         con.close()
         return "✅ Database connection successful!"
     except Exception as e:
@@ -925,6 +924,8 @@ def expense():
     return render_template("chart.html")
 
 
+import os
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
-    # app.run(debug=True, host="0.0.0.0", port=5000, use_reloader=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
+    
