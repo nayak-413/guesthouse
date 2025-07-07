@@ -224,7 +224,7 @@ def index():
     con.close()
     try:
         return render_template(
-            "index.html",
+            "index2.html",
             logs=logs,
             current_guests=current_guests,
             total_beds=total_beds,
