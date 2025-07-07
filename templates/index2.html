@@ -1,33 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Guesthouse Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    <h1>🏨 Guesthouse Dashboard</h1>
-    <p><strong>Total Beds:</strong> {{ total_beds }}</p>
-    <p><strong>Occupied:</strong> {{ occupied }}</p>
-    <p><strong>Available:</strong> {{ available }}</p>
-
-    <h2>🧍 Current Guests:</h2>
-    <ul>
-    {% for guest in current_guests %}
-        <li>{{ guest[1] }} - Room {{ guest[2] }}, Bed {{ guest[3] }}</li>
-    {% endfor %}
-    </ul>
-
-    <h2>📢 Announcements:</h2>
-    <ul>
-    {% for ann in announcements %}
-        <li><strong>{{ ann[1] }}</strong>: {{ ann[2] }} ({{ ann[3] }})</li>
-    {% endfor %}
-    </ul>
-
-    <h2>💬 Messages:</h2>
-    <ul>
-    {% for msg in messages %}
-        <li>{{ msg[2] }}: {{ msg[3] }}</li>
-    {% endfor %}
-    </ul>
+    Hello World...
 </body>
 </html>
