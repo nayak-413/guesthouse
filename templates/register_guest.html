@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register New Guest</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='regcpy.css') }}"
+    />
+  </head>
+  <body>
+    <h1>Register New Guest</h1>
+    <form action="/register" method="POST">
+      <label for="name">Full Name:</label>
+      <input type="text" name="name" id="name" required />
+
+      <label for="email">Email Address:</label>
+      <input type="email" name="email" id="email" />
+
+      <label for="phone">Mobile Number:</label>
+      <input type="tel" name="phone" id="phone" required />
+      <br /><br />
+
+      <!-- <p><strong>Beds Available:</strong> {{ available_beds }}</p>
+
+      <label for="bed_count">Number of Beds:</label>
+      <select id="bed_count" name="bed_count" required>
+        {% for i in range(1, max_beds + 1) %}
+        <option value="{{ i }}">{{ i }}</option>
+        {% endfor %}
+      </select> -->
+
+      <h3 class="h3">Select Available Beds</h3>
+      <div class="bed-selection">
+        {% for bed in all_beds %} {% set bed_id = bed[0] %} {% set room = bed[1]
+        %} {% set bed_number = bed[2] %} {% set occupied = bed[3] %} {% set bg =
+        "#f8d7da" if occupied else "#e6ffe6" %}
+
+        <label class="{% if occupied %}occupied{% else %}available{% endif %}">
+          <input
+            type="checkbox"
+            name="selected_beds"
+            value="{{ bed_id }}"
+            {%
+            if
+            occupied
+            %}checked
+            disabled{%
+            endif
+            %}
+          />
+          Room {{ room }} - Bed {{ bed_number }} {% if occupied %}{% endif %}
+        </label>
+        {% endfor %}
+      </div>
+
+      <br /><br />
+
+      <textarea
+        id="reason"
+        name="reason"
+        rows="3"
+        required
+        placeholder="Arrived from and reason for staying"
+      ></textarea>
+      <br />
+
+      <select id="category" name="category" required>
+        <option value="">Plant</option>
+        <option value="CM">CM</option>
+        <option value="PD">PD</option>
+        <option value="CM/PD">CM/PD</option></select
+      ><br /><br /><br />
+
+      <fieldset>
+        <legend><h4>Meal Preferences</h4></legend>
+        <div class="meal-option">
+          <label
+            ><input type="checkbox" name="meals" value="Breakfast" />
+            Breakfast</label
+          >
+          <label
+            ><input type="checkbox" name="meals" value="Lunch" /> Lunch</label
+          >
+          <label
+            ><input type="checkbox" name="meals" value="Dinner" /> Dinner</label
+          >
+        </div>
+      </fieldset>
+
+      <button type="submit">Register Guest</button>
+    </form>
+
+    <a href="/">Back to Dashboard</a>
+  </body>
+</html>

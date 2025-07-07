@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Guest House Check In</title>
+    <style>
+      /* Your full original CSS — kept exactly as it is */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        background-color: #f2f2f2;
+      }
+      header {
+        background-color: #004466;
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      nav {
+        display: flex;
+        justify-content: center;
+        background-color: #006080;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      nav button {
+        background-color: transparent;
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+      }
+      nav button:hover {
+        background-color: #005070;
+      }
+      nav button.active {
+        background-color: #00aaff;
+        color: white;
+        font-weight: bold;
+      }
+      section {
+        display: none;
+        padding: 30px;
+        max-width: 700px;
+        margin: 30px auto;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      section.active {
+        display: block;
+      }
+      h2,
+      h3 {
+        margin-top: 0;
+        color: #004466;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+      textarea {
+        resize: vertical;
+      }
+      button[type="submit"],
+      button[type="button"] {
+        padding: 12px 20px;
+        background-color: #00aaff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+      }
+      button[type="submit"]:hover,
+      button[type="button"]:hover {
+        background-color: #0077aa;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      li {
+        margin-bottom: 8px;
+      }
+      .highlighted {
+        background-color: #e6ffe6 !important;
+      }
+      .error-block {
+        padding: 16px;
+        background-color: #ffdddd;
+        border-left: 6px solid #f44336;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <button onclick="showTab('checkin')" class="active">Checkin</button>
+      <button onclick="showTab('food')">Food Services</button>
+      <button onclick="showTab('staff')">Staff Directory</button>
+      <button onclick="showTab('maintenance')">Maintenance</button>
+      <button onclick="showTab('announcements')">Announcements</button>
+    </nav>
+
+    <section id="checkin" class="active">
+      <h2>Guest Check-In Form</h2>
+
+      <div
+        id="noBeds"
+        style="
+          display: none;
+          background-color: #ffdddd;
+          border-left: 6px solid #f44336;
+          padding: 16px;
+          margin-bottom: 20px;
+        "
+      >
+        <strong>Notice:</strong> All beds are currently occupied. You cannot
+        book at this time.
+      </div>
+
+      <form
+        id="checkinForm"
+        class="guest-form"
+        action="http://127.0.0.1:5000/submit"
+        method="POST"
+      >
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required /><br /><br />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required /><br /><br />
+
+        <label for="phone">Phone:</label>
+        <input type="tel" id="phone" name="phone" required /><br /><br />
+
+        <label for="add"></label>
+        <textarea
+          name="address"
+          placeholder="Enter your Address"
+          id="add"
+          rows="3"
+          required
+        ></textarea>
+
+        <br /><br />
+
+        <p><strong>Beds Available:</strong> <span id="availableBeds"></span></p>
+
+        <label for="bed_count">Number of Beds:</label>
+        <select id="bed_count" name="bed_count" required></select>
+        <br /><br />
+
+        <textarea
+          id="reason"
+          name="reason"
+          rows="3"
+          required
+          placeholder="Enter reason for staying"
+        ></textarea>
+        <br /><br />
+
+        <select id="category" name="category" required>
+          <option value="">Plant</option>
+          <option value="CM">CM</option>
+          <option value="PD">PD</option>
+          <option value="CM/PD">CM/PD</option>
+        </select>
+        <br /><br />
+
+        <button type="submit">Submit</button>
+      </form>
+    </section>
+
+    <section id="food">
+      <h3>Order Your Meal</h3>
+      <form>
+        <label
+          ><input type="checkbox" name="meal" value="breakfast" />
+          Breakfast</label
+        ><br />
+        <label><input type="checkbox" name="meal" value="lunch" /> Lunch</label
+        ><br />
+        <label
+          ><input type="checkbox" name="meal" value="dinner" /> Dinner</label
+        ><br /><br />
+        <button type="button">Place Order</button>
+      </form>
+    </section>
+
+    <section id="staff">
+      <h3>Contact Our Staff</h3>
+      <ul>
+        <li>Mr. A - Manager - 📞 9876543210</li>
+        <li>Ms. B - Housekeeping - 📞 9876543211</li>
+        <li>Mr. C - Kitchen Head - 📞 9876543212</li>
+      </ul>
+    </section>
+
+    <section id="maintenance">
+      <h3>Report an Issue</h3>
+      <textarea rows="3" placeholder="Describe the issue..."></textarea
+      ><br /><br />
+      <button type="button">Submit Complaint</button>
+    </section>
+
+    <section id="announcements">
+      <h2>Announcements</h2>
+      <p>Policy updates and notices.</p>
+    </section>
+
+    <script>
+      function showTab(id) {
+        document
+          .querySelectorAll("section")
+          .forEach((sec) => sec.classList.remove("active"));
+        document
+          .querySelectorAll("nav button")
+          .forEach((btn) => btn.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        event.target.classList.add("active");
+      }
+
+      // SIMULATED bed logic
+      const noBeds = false; // Set to true to simulate "all beds full"
+      const availableBeds = 5; // Simulate number of available beds
+
+      if (noBeds) {
+        document.getElementById("noBeds").style.display = "block";
+        document.getElementById("checkinForm").style.display = "none";
+      } else {
+        document.getElementById("noBeds").style.display = "none";
+        document.getElementById("checkinForm").style.display = "block";
+
+        const bedSelect = document.getElementById("bed_count");
+        for (let i = 1; i <= availableBeds; i++) {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = i;
+          bedSelect.appendChild(opt);
+        }
+        document.getElementById("availableBeds").textContent = availableBeds;
+      }
+    </script>
+  </body>
+</html>

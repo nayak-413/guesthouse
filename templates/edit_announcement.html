@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit Announcement</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        background: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 15px;
+      }
+      button {
+        background-color: #00aaff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Edit Announcement</h2>
+    <form method="POST">
+      <input type="text" name="title" value="{{ title }}" required />
+      <textarea name="message" rows="6" required>{{ message }}</textarea>
+      <button type="submit">Save Changes</button>
+    </form>
+  </body>
+</html>

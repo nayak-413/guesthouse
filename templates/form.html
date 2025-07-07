@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Guest House Check In</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='form.css') }}"
+    />
+  </head>
+  <body>
+    <header><img src="" alt="" /></header>
+    <div class="main-wrapper">
+      <section id="homepage">
+        <div class="card-wrapper">
+          <div class="tab-card" onclick="navigateToTab('checkin')">
+            <img
+              src="https://icons.iconarchive.com/icons/pictogrammers/material/128/account-check-icon.png"
+              width="128"
+              height="128"
+              alt="Check In"
+            />
+            <div class="card-label">Checkin</div>
+          </div>
+        </div>
+
+        <div class="card-wrapper">
+          <div class="tab-card" onclick="navigateToTab('staff')">
+            <img
+              src="https://icons.iconarchive.com/icons/ionic/ionicons/128/people-icon.png"
+              width="128"
+              height="128"
+              alt="Staff Directory"
+            />
+            <div class="card-label">Staff Directory</div>
+          </div>
+        </div>
+
+        <div class="card-wrapper">
+          <div class="tab-card" onclick="navigateToTab('maintenance')">
+            <img
+              src="https://icons.iconarchive.com/icons/pictogrammers/material/128/tools-icon.png"
+              width="128"
+              height="128"
+              alt="Maintenance"
+            />
+            <div class="card-label">Maintenance</div>
+          </div>
+        </div>
+
+        <div class="card-wrapper">
+          <div class="tab-card" onclick="navigateToTab('announcements')">
+            <img
+              src="https://icons.iconarchive.com/icons/picol/picol/128/Speaker-Silent-icon.png"
+              width="128"
+              height="128"
+              alt="Announcements"
+            />
+            <div class="card-label">Announcements</div>
+          </div>
+        </div>
+      </section>
+      <br />
+      <section id="checkin" class="tab-section">
+        <h2>Guest Check-In Form</h2>
+        <form
+          class="guest-form"
+          action="http://127.0.0.1:5000/submit"
+          method="POST"
+        >
+          {% if no_beds %}
+          <div
+            style="
+              @import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap');
+              font-family: 'Literata', serif;
+              font-optical-sizing: auto;
+              font-weight: 500;
+              font-style: normal;
+              padding: 35px;
+              color: #f44336;
+              background-color: #ffdddd;
+              border-left: 6px solid #f44336;
+              margin-bottom: 20px;
+              border-radius: 7px;
+            "
+          >
+            <strong>Notice:</strong> All beds are currently occupied. You cannot
+            book at this time.
+          </div>
+          {% endif %} {% if not no_beds %}
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required /><br />
+
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required /><br />
+
+          <label for="phone">Phone:</label>
+          <input type="tel" id="phone" name="phone" required /><br />
+
+          <label for="category">Visiting:</label>
+          <select id="category" name="category" required>
+            <option value="">Visiting Plant</option>
+            <option value="CM">CM</option>
+            <option value="PD">PD</option>
+            <option value="CM/PD">CM/PD</option>
+          </select>
+          <br /><br />
+
+          <textarea
+            id="reason"
+            name="reason"
+            rows="3"
+            required
+            placeholder="Arrived from and reason for staying"
+          ></textarea>
+
+          <div class="person-count">
+            <!-- Adults -->
+            <div class="field-group">
+              <label for="adults">Adults:</label><br />
+              <select
+                name="adults"
+                id="adults"
+                required
+                onchange="updateTotal()"
+              >
+                {% for i in range(1, max_beds + 1) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Children -->
+            <div class="field-group">
+              <label for="childs">Children:</label><br />
+              <select name="childs" id="childs" onchange="updateTotal()">
+                <option value="0" selected>No Child</option>
+                {% for i in range(1, max_beds + 1) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Total Persons (auto-updated) -->
+            <div class="field-group">
+              <label>Total Persons:</label><br />
+              <input
+                type="text"
+                id="total_persons"
+                name="total_persons"
+                readonly
+              />
+            </div>
+          </div>
+
+          <br /><br /><br />
+          <div class="stat-card">
+            <p><strong>Rooms Available:</strong> {{ room_count | safe }}</p>
+          </div>
+          <!--<ul style="padding-left: 20px">
+          {% for room in available_rooms %}
+          <li style="color: black">Room {{ room }}</li>
+          <br />
+          {% endfor %}
+        </ul> -->
+
+          <!--<p><strong>Total Beds Available:</strong> {{ max_beds | safe}}</p>-->
+
+          <!-- <label for="bed_count">Number of Beds you want to book:</label>
+        <select id="bed_count" name="bed_count" required>
+          {% for i in range(1, max_beds + 1) %}
+          <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+        <br /><br /> -->
+
+          <h3 style="color: black">Select Available Beds:</h3>
+          <div class="bed-selection">
+            {% for bed in all_beds %} {% set bed_id = bed[0] %} {% set room =
+            bed[1] %} {% set bed_number = bed[2] %} {% set occupied = bed[3] %}
+
+            <label class="{% if occupied %}occupied{% endif %}">
+              <input
+                type="checkbox"
+                name="selected_beds"
+                value="{{ bed_id }}"
+                {%if
+                occupied%}
+                checked
+                disabled
+                {%endif%}
+              />
+              Room {{ room }} - Bed {{ bed_number }} {% if occupied %} <br />
+              <!-- <span>(Occupied)</span> -->
+              {% endif %}
+            </label>
+            {% endfor %}
+          </div>
+          <br />
+
+          <div class="checkout-flex">
+            <div class="checkout-box">
+              <label for="checkout_date">📅 Check-Out Date</label>
+              <input
+                type="date"
+                name="checkout_date"
+                id="checkout_date"
+                required
+              />
+            </div>
+
+            <div class="checkout-box">
+              <label for="checkout_time">⏰ Check-Out Time</label>
+              <input
+                type="time"
+                name="checkout_time"
+                id="checkout_time"
+                required
+              />
+            </div>
+          </div>
+
+          <br />
+
+          <fieldset>
+            <legend class="legend">Meals Preferences</legend>
+            <div class="meal-option">
+              <label
+                ><input type="checkbox" name="meals" value="Breakfast" />
+                Breakfast</label
+              >
+              <label
+                ><input type="checkbox" name="meals" value="Lunch" />
+                Lunch</label
+              >
+              <label
+                ><input type="checkbox" name="meals" value="Dinner" />
+                Dinner</label
+              >
+            </div>
+          </fieldset>
+
+          <br /><br />
+
+          <button type="submit">Submit</button>
+          {% endif %}
+        </form>
+
+        <div class="section-footer">
+          <button class="back-home" onclick="backToHome()">
+            ← Back to Home
+          </button>
+        </div>
+      </section>
+
+      <section id="staff" class="tab-section">
+        <h3>Contact Our Staff</h3>
+        <ul>
+          <li>Mr. A - Manager - 📞 9876543210</li>
+          <li>Ms. B - Housekeeping - 📞 9876543211</li>
+          <li>Mr. C - Kitchen Head - 📞 9876543212</li>
+        </ul>
+        <div class="section-footer">
+          <button class="back-home" onclick="backToHome()">
+            ← Back to Home
+          </button>
+        </div>
+      </section>
+
+      <section id="maintenance" class="tab-section">
+        <h2>Send Message to Admin</h2>
+        <form action="/message" method="POST">
+          <input
+            type="number"
+            name="guest_id"
+            id="message_guest_id"
+            onchange="fetchRoomAndBedOptions()"
+            placeholder="Enter Guest ID"
+            required
+          />
+          <br /><br />
+          <label for="room_number">Select Room No: </label>
+          <select name="room_number" id="message_room_number" required>
+            <option value="">-- Select Room --</option></select
+          ><br />
+
+          <label for="bed_number">Select Bed No: </label>
+          <select name="bed_number" id="message_bed_number" required>
+            <option value="">-- Select Bed --</option></select
+          ><br />
+
+          <label for="message">Complaint any Issue:</label>
+          <textarea
+            name="message"
+            rows="4"
+            required
+            placeholder="Enter your message"
+          ></textarea
+          ><br /><br />
+
+          <button type="submit">Send Message</button>
+        </form>
+        <div class="section-footer">
+          <button class="back-home" onclick="backToHome()">
+            ← Back to Home
+          </button>
+        </div>
+      </section>
+
+      <section id="announcements" class="tab-section">
+        <h2>Latest Announcements</h2>
+        <ul class="announcement-list">
+          {% for title, message, posted_on in announcements %}
+          <li>
+            <strong>{{ title }}</strong><br />
+            <div>{{ message|safe }}</div>
+            <br /><br />
+            {{ posted_on }}
+          </li>
+          {% else %}
+          <li>No announcements available.</li>
+          {% endfor %}
+        </ul>
+
+        <div class="section-footer">
+          <button class="back-home" onclick="backToHome()">
+            ← Back to Home
+          </button>
+        </div>
+      </section>
+    </div>
+    <hr />
+    <footer class="footer-note">Powered by Alpla Guest Portal</footer>
+
+    <script>
+      // Main tab display function
+      function showTab(id) {
+        document.getElementById("homepage").classList.add("hidden");
+
+        document.querySelectorAll(".tab-section").forEach((sec) => {
+          sec.classList.remove("active");
+        });
+
+        const section = document.getElementById(id);
+        if (section) {
+          section.classList.add("active");
+
+          // 🔽 Smooth scroll to the section
+          setTimeout(() => {
+            section.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100); // slight delay to ensure visibility
+        }
+      }
+
+      function navigateToTab(id) {
+        showTab(id);
+        history.pushState(null, "", `#${id}`);
+      }
+
+      // Handle Back/Forward navigation
+      window.addEventListener("popstate", function () {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+          showTab(hash);
+        } else {
+          document.getElementById("homepage").classList.remove("hidden");
+          document
+            .querySelectorAll(".tab-section")
+            .forEach((sec) => sec.classList.remove("active"));
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Retain selected tab on refresh
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+          showTab(hash);
+        }
+
+        // Room/Bed dynamic dropdown logic
+        function fetchRoomAndBedOptions() {
+          const guestId = document.getElementById("message_guest_id").value;
+          if (!guestId) return;
+
+          fetch(`/guest_rooms_beds/${guestId}`)
+            .then((response) => response.json())
+            .then((data) => {
+              const roomSelect = document.getElementById("message_room_number");
+              const bedSelect = document.getElementById("message_bed_number");
+
+              roomSelect.innerHTML =
+                "<option value=''>-- Select Room --</option>";
+              bedSelect.innerHTML =
+                "<option value=''>-- Select Bed --</option>";
+
+              const rooms = [
+                ...new Set(data.map((entry) => entry.room_number)),
+              ];
+
+              rooms.forEach((room) => {
+                roomSelect.innerHTML += `<option value="${room}">${room}</option>`;
+              });
+
+              if (rooms.length === 1) {
+                roomSelect.value = rooms[0];
+                populateBeds(data, rooms[0]);
+              }
+
+              roomSelect.onchange = () => {
+                populateBeds(data, roomSelect.value);
+              };
+            });
+        }
+
+        function populateBeds(data, selectedRoom) {
+          const bedSelect = document.getElementById("message_bed_number");
+          bedSelect.innerHTML = "<option value=''>-- Select Bed --</option>";
+          data
+            .filter((entry) => entry.room_number == selectedRoom)
+            .forEach((entry) => {
+              bedSelect.innerHTML += `<option value="${entry.bed_number}">${entry.bed_number}</option>`;
+            });
+        }
+
+        window.fetchRoomAndBedOptions = fetchRoomAndBedOptions;
+      });
+
+      function backToHome() {
+        const homepage = document.getElementById("homepage");
+
+        // Remove active sections
+        document.querySelectorAll(".tab-section").forEach((sec) => {
+          sec.classList.remove("active");
+        });
+
+        // Show homepage with animation
+        homepage.classList.remove("hidden");
+
+        // Reset animation
+        homepage.classList.remove("animated-entry");
+        void homepage.offsetWidth; // 👈 forces a reflow so the animation retriggers
+        homepage.classList.add("animated-entry");
+
+        // Clean up URL
+        history.pushState(null, "", "#");
+      }
+
+      function updateTotal() {
+        const adults = parseInt(document.getElementById("adults").value) || 0;
+        const childs = parseInt(document.getElementById("childs").value) || 0;
+        const total = adults + childs;
+        document.getElementById("total_persons").value = total;
+      }
+
+      // Trigger update on page load too
+      window.onload = updateTotal;
+    </script>
+  </body>
+</html>

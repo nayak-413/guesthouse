@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cloud Expense Tracker</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #031d67, #6dd4d1);
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 720px;
+        margin: 40px auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 30px 40px;
+        text-align: center;
+      }
+
+      h1 {
+        color: #333333;
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 10px;
+        color: #444;
+      }
+
+      input[type="month"],
+      input[type="text"],
+      input[type="number"] {
+        padding: 10px 15px;
+        font-size: 1rem;
+        margin: 10px 5px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        width: 180px;
+        transition: border-color 0.3s ease;
+      }
+
+      input[type="month"]:focus,
+      input[type="text"]:focus,
+      input[type="number"]:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      canvas {
+        margin: 40px auto 20px;
+        display: block;
+        width: 100% !important;
+        max-width: 400px;
+        height: 400px !important;
+      }
+
+      h2 {
+        text-align: left;
+        margin: 30px 0 10px;
+        font-size: 1.2rem;
+        color: #444;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #eaeaea;
+        text-align: center;
+      }
+
+      th {
+        background-color: #eaeaea;
+        color: #333;
+        font-weight: 600;
+      }
+
+      tr:hover {
+        background-color: #dff0ff;
+      }
+
+      td button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border: none;
+        border-radius: 6px;
+        margin: 0 3px;
+      }
+
+      td button:first-child {
+        background-color: #ffc107;
+        color: #333;
+      }
+
+      td button:first-child:hover {
+        background-color: #e0a800;
+      }
+
+      td button:last-child {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      td button:last-child:hover {
+        background-color: #c82333;
+      }
+
+      @media (max-width: 600px) {
+        input[type="month"],
+        input[type="text"],
+        input[type="number"] {
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        button {
+          width: 100%;
+          margin-top: 10px;
+        }
+      }
+
+      /* Remove number input arrows in Chrome, Safari, Edge */
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      /* Remove number input arrows in Firefox */
+      input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Monthly Expense Tracker</h1>
+      <br />
+      <hr />
+
+      <label for="monthSelect">Select Month:</label>
+      <input type="month" id="monthSelect" />
+
+      <div class="input-group">
+        <input type="text" id="categoryInput" placeholder="Category" />
+        <input type="number" id="amountInput" placeholder="Amount (₹)" />
+        <button onclick="addExpense()">Add Expense</button>
+      </div>
+
+      <canvas id="expenseChart"></canvas>
+      <h2>Expense List</h2>
+      <table id="expenseTable">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Amount (₹)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <script>
+      // ✅ 1. Firebase config (use your actual project details here)
+      const firebaseConfig = {
+        apiKey: "AIzaSyA0C8rUwOP6r3nxbgmweeTMG3T3R5FTH9A",
+        authDomain: "expense-tracker-62854.firebaseapp.com",
+        databaseURL:
+          "https://expense-tracker-62854-default-rtdb.asia-southeast1.firebasedatabase.app", // ✅ This is required!
+        projectId: "expense-tracker-62854",
+        storageBucket: "expense-tracker-62854.appspot.com",
+        messagingSenderId: "141161304993",
+        appId: "1:141161304993:web:61d9b3c0744ea3f6c6f1e0",
+        measurementId: "G-PHDKYJRLJM",
+      };
+
+      // ✅ 2. Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      let currentMonth = "";
+      let chart;
+      const ctx = document.getElementById("expenseChart").getContext("2d");
+
+      // ✅ 3. Month selection handler
+      document
+        .getElementById("monthSelect")
+        .addEventListener("change", function () {
+          currentMonth = this.value;
+          loadDataFromFirebase();
+        });
+
+      // ✅ 4. Add expense to Firebase
+      function addExpense() {
+        const category = document.getElementById("categoryInput").value.trim();
+        const amount = parseFloat(document.getElementById("amountInput").value);
+
+        if (!currentMonth || !category || isNaN(amount) || amount <= 0) {
+          alert("Please enter valid month, category, and amount.");
+          return;
+        }
+
+        const expenseRef = db.ref(`expenses/${currentMonth}/${category}`);
+        expenseRef.once("value").then((snapshot) => {
+          const existing = snapshot.val() || 0;
+          expenseRef.set(existing + amount);
+          loadDataFromFirebase(); // refresh chart
+        });
+
+        document.getElementById("categoryInput").value = "";
+        document.getElementById("amountInput").value = "";
+      }
+
+      // ✅ 5. Load and update chart
+      function loadDataFromFirebase() {
+        if (!currentMonth) return;
+
+        db.ref(`expenses/${currentMonth}`).once("value", (snapshot) => {
+          const data = snapshot.val() || {};
+          const labels = Object.keys(data);
+          const values = Object.values(data);
+
+          // ✅ Destroy old chart if exists
+          if (chart) chart.destroy();
+
+          // ✅ If there's no data, show a message and stop
+          if (labels.length === 0) {
+            const chartContainer =
+              document.getElementById("expenseChart").parentElement;
+            document.getElementById("expenseChart").style.display = "none";
+
+            if (!document.getElementById("noDataMessage")) {
+              const message = document.createElement("div");
+              message.id = "noDataMessage";
+              message.style.marginTop = "20px";
+              message.style.color = "#888";
+              message.style.fontSize = "1rem";
+              message.textContent = "No expenses recorded for this month.";
+              chartContainer.appendChild(message);
+            }
+
+            // Also clear the table
+            document.querySelector("#expenseTable tbody").innerHTML = "";
+            return;
+          }
+
+          // ✅ Clear "no data" message and show chart again
+          const noDataMessage = document.getElementById("noDataMessage");
+          if (noDataMessage) noDataMessage.remove();
+
+          const canvas = document.getElementById("expenseChart");
+          canvas.style.removeProperty("display");
+          canvas.style.removeProperty("width");
+          canvas.style.removeProperty("height");
+
+          // ✅ Create chart
+          chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: `Expenses for ${currentMonth}`,
+                  data: values,
+                  backgroundColor: [
+                    "#ff6384",
+                    "#36a2eb",
+                    "#ffcd56",
+                    "#4bc0c0",
+                    "#9966ff",
+                    "#ff9f40",
+                    "#20c997",
+                    "#dc3545",
+                    "#6f42c1",
+                  ],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: {
+                    usePointStyle: true,
+                    pointStyle: "circle",
+                    font: { size: 14 },
+                    color: "#333",
+                  },
+                },
+                title: {
+                  display: true,
+                  text: `Expenses Breakdown for ${new Date(
+                    currentMonth
+                  ).toLocaleString("default", {
+                    month: "long",
+                    year: "numeric",
+                  })}`,
+
+                  font: { size: 14, weight: "bold" },
+                  padding: { top: 10, bottom: 20 },
+                },
+                tooltip: {
+                  backgroundColor: "#000",
+                  titleColor: "#fff",
+                  bodyColor: "#fff",
+                  titleFont: { size: 16, weight: "bold" },
+                  bodyFont: { size: 14 },
+                  padding: 12,
+                  cornerRadius: 6,
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || "";
+                      const value = context.parsed || 0;
+                      return `${label}: ₹${value}`;
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          // ✅ Update table
+          const tableBody = document.querySelector("#expenseTable tbody");
+          tableBody.innerHTML = "";
+          labels.forEach((category, i) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+        <td>${category}</td>
+        <td>₹ ${values[i]}</td>
+        <td>
+          <button onclick="editExpense('${category}', ${values[i]})">Edit</button>
+          <button onclick="deleteExpense('${category}')">Delete</button>
+        </td>
+      `;
+            tableBody.appendChild(row);
+          });
+        });
+      }
+
+      // ✅ 6. Load current month on page load
+      window.onload = () => {
+        const today = new Date().toISOString().slice(0, 7);
+        document.getElementById("monthSelect").value = today;
+        currentMonth = today;
+        loadDataFromFirebase();
+      };
+
+      function editExpense(category, currentValue) {
+        const newAmount = prompt(
+          `Enter new amount for "${category}":`,
+          currentValue
+        );
+        if (newAmount === null) return; // user cancelled
+        const amountNum = parseFloat(newAmount);
+        if (isNaN(amountNum) || amountNum <= 0) {
+          alert("Please enter a valid number.");
+          return;
+        }
+
+        const expenseRef = db.ref(`expenses/${currentMonth}/${category}`);
+        expenseRef.set(amountNum).then(loadDataFromFirebase);
+      }
+
+      function deleteExpense(category) {
+        if (!confirm(`Are you sure you want to delete "${category}"?`)) return;
+
+        const expenseRef = db.ref(`expenses/${currentMonth}/${category}`);
+        expenseRef.remove().then(loadDataFromFirebase);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Hand+Pre:wght@400..700&family=Outfit:wght@100..900&display=swap");
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        text-align: center;
+        padding-top: 80px;
+      }
+
+      h1 {
+        font-family: "Edu NSW ACT Hand Pre", cursive;
+        color: green;
+      }
+
+      table {
+        margin: 20px auto;
+        border-collapse: collapse;
+        width: 70%;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      th,
+      td {
+        border: 1px solid #999;
+        padding: 8px 12px;
+        overflow-wrap: break-word;
+      }
+
+      p {
+        /* src: url(https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Hand+Pre:wght@400..700&display=swap);
+        font-family: "Edu NSW ACT Hand Pre", cursive;
+        font-optical-sizing: auto;
+        font-weight: 200;
+        font-style: normal; */
+        font-family: "Outfit", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 20px;
+        margin: 10px 0;
+      }
+
+      strong {
+        color: #e74c3c;
+        font-size: 18px;
+        background-color: #f9e79f;
+        padding: 4px 8px;
+        border-radius: 5px;
+        box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #2e86de;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+
+      a:hover {
+        background-color: #1b4f72;
+        transform: scale(1.05);
+      }
+
+      .data-card {
+        flex: 1;
+        max-width: fit-content;
+        min-width: 90px;
+        background: rgb(226, 255, 255);
+        border-radius: 15px;
+        padding: 20px 80px;
+        text-align: center;
+        margin: 20px auto;
+        transition: transform 0.2s;
+        border-top: 5px solid #0077cc;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          margin: 25% auto;
+          padding: 10px;
+          width: 80%;
+        }
+
+        .container {
+          max-width: 100%;
+          margin: 0 auto;
+          padding: 20px 15px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        strong {
+          font-size: 15px;
+        }
+
+        table,
+        th,
+        td {
+          font-size: 14px;
+        }
+
+        a {
+          padding: 10px 20px;
+          width: 100%;
+          text-align: center;
+          box-sizing: border-box;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome, {{ name }}!</h1>
+      <p>Your check-in was successful.</p>
+      <br /><br /><br />
+
+      <div class="data-card">
+        <p style="font-size: x-large; color: #1b4f72; font-weight: 700">
+          <strong>Guest ID:</strong> {{ guest_id }}
+        </p>
+      </div>
+
+      {% if assigned_beds %}
+      <h3>Your Room and Bed Details:</h3>
+      <table>
+        <tr>
+          <th>Room Number</th>
+          <th>Bed Number</th>
+        </tr>
+        {% for room, bed in assigned_beds %}
+        <tr>
+          <td>{{ room }}</td>
+          <td>{{ bed }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+
+      <br />
+      <div style="text-align: center">
+        <a href="/submit">Go to Dashboard</a>
+      </div>
+    </div>
+  </body>
+</html>
