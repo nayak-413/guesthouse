@@ -205,9 +205,9 @@
               selected_meals = log[10].split(", ") %} {% set ns =
               namespace(total=0) %}
               <ul class="meal-list">
-                {% for meal in selected_meals %} {% set price =
-                meal_prices.get(meal.strip(), 0) %} {% set ns.total = ns.total +
-                price %}
+                {% for meal in selected_meals %} 
+                {% set price = meal_prices.get(meal.strip() if meal else '', 0) %}
+                {% set ns.total = ns.total + price %}
                 <li>{{ meal.strip() }} - ₹{{ price }}</li>
                 {% endfor %}
               </ul>
