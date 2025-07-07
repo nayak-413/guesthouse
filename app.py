@@ -109,6 +109,7 @@ def connect_db():
 # def index():
 #     return "✅ Flask app is running!"
 def index():
+    print("➡️ Reached index route")
     con = connect_db()
     cur = con.cursor()
 
@@ -208,14 +209,8 @@ def index():
     #     meal_orders = cur.fetchall()
 
     con.close()
-
-    print("🔍 DEBUG:", {
-        "logs": len(logs),
-        "guests": len(current_guests),
-        "meal_prices": meal_prices,
-        "bed_counts": bed_counts_per_guest
-    })
-
+    
+try:
     return render_template(
         "index.html",
         logs=logs,
@@ -223,13 +218,15 @@ def index():
         total_beds=total_beds,
         occupied=occupied,
         available=available,
-        # occupied=len(current_guests),
-        # available=total_beds - len(current_guests),
         bed_counts=bed_counts_per_guest,
         messages=messages,
         announcements=announcements,
         meal_prices=meal_prices,
     )
+except Exception as e:
+    print("🔥 Template render failed:", str(e))
+    return "Template error: " + str(e)
+
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -917,5 +914,5 @@ def expense():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
     # app.run(debug=True, host="0.0.0.0", port=5000, use_reloader=False)
