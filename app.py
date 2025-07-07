@@ -107,22 +107,7 @@ def connect_db():
     cur = con.cursor()
     cur.execute("SET SESSION innodb_lock_wait_timeout = 10")
     return con
-
-
-@app.route("/db-test")
-def db_test():
-    try:
-        con = connect_db()
-        con.close()
-        return "✅ Database connection successful!"
-    except Exception as e:
-        print("❌ ERROR:", e)
-        return f"❌ Database connection failed: {e}"
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
+    
 
 @app.route("/")
 # def index():
@@ -931,8 +916,21 @@ def expense():
     return render_template("chart.html")
 
 
-import os
+@app.route('/')
+def home():
+    return "✅ Flask is working!"
 
-if __name__ == "__main__":
+@app.route('/test-db')
+def test_db():
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT NOW()")
+            now = cursor.fetchone()
+        return f"MySQL connected. Time: {now[0]}"
+    except Exception as e:
+        return f"❌ DB Error: {str(e)}"
+
+
+pass
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
     
