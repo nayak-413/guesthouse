@@ -10,6 +10,8 @@ import logging
 import re
 import os
 
+app = Flask(__name__, template_folder='templates', static_folder='static')
+
 
 # Configure file logging
 logging.basicConfig(
