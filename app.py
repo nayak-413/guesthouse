@@ -209,8 +209,15 @@ def index():
 
     con.close()
 
+    print("🔍 DEBUG:", {
+        "logs": len(logs),
+        "guests": len(current_guests),
+        "meal_prices": meal_prices,
+        "bed_counts": bed_counts_per_guest
+    })
+
     return render_template(
-        "index2.html",
+        "index.html",
         logs=logs,
         current_guests=current_guests,
         total_beds=total_beds,
