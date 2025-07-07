@@ -209,23 +209,22 @@ def index():
     #     meal_orders = cur.fetchall()
 
     con.close()
-    
-try:
-    return render_template(
-        "index.html",
-        logs=logs,
-        current_guests=current_guests,
-        total_beds=total_beds,
-        occupied=occupied,
-        available=available,
-        bed_counts=bed_counts_per_guest,
-        messages=messages,
-        announcements=announcements,
-        meal_prices=meal_prices,
-    )
-except Exception as e:
-    print("🔥 Template render failed:", str(e))
-    return "Template error: " + str(e)
+    try:
+        return render_template(
+            "index.html",
+            logs=logs,
+            current_guests=current_guests,
+            total_beds=total_beds,
+            occupied=occupied,
+            available=available,
+            bed_counts=bed_counts_per_guest,
+            messages=messages,
+            announcements=announcements,
+            meal_prices=meal_prices,
+        )
+    except Exception as e:
+        print("🔥 Template render failed:", str(e))
+        return "Template error: " + str(e)
 
 
 
